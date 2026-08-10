@@ -81,6 +81,14 @@ input:focus, select:focus { outline: none; border-color: var(--accent); box-shad
   animation: spin 2.6s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+.logo-img {
+  width: 62px; height: 62px; border-radius: 50%; object-fit: cover;
+  box-shadow: 0 0 24px rgba(212, 175, 55, 0.25);
+}
+.brand-logo {
+  width: 26px; height: 26px; border-radius: 50%; object-fit: cover;
+  vertical-align: -7px; margin-right: 2px;
+}
 .login-card h1 {
   text-align: center; font-size: 22px; margin: 14px 0 2px; letter-spacing: .18em;
   background: linear-gradient(90deg, #9db9ff, #fff, #c0a5ff);
