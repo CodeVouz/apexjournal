@@ -29,10 +29,10 @@ Open **http://localhost:3000**. Stop with `Ctrl+C` in both windows.
 
 ## Login — your real MT5 credentials
 
-| Field    | Example          |
-|----------|------------------|
-| Server   | `Bybit-Live-7`   |
-| Login ID | `558577341`      |
+| Field    | Example               |
+|----------|-----------------------|
+| Server   | `Broker-Server-Name`  |
+| Login ID | `12345678`            |
 | Password | MT5 password (investor/read-only works and is safest) |
 
 - Verified **by MT5 itself** — wrong credentials are rejected exactly like the MT5 app.

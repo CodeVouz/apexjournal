@@ -192,11 +192,11 @@ tr.flash td { animation: flash .9s; }
 .cal-day .d { color: var(--muted); font-size: 11px; }
 .cal-day .v { font-weight: 700; font-size: 13px; margin-top: 3px; font-variant-numeric: tabular-nums; }
 .cal-day .n { color: var(--muted); font-size: 10.5px; }
-.cal-day.win { background: var(--win-bg); border-color: rgba(46, 230, 168, 0.35); }
+.cal-day.win { background: var(--win-bg); border-color: rgba(46, 230, 168, 0.28); }
 .cal-day.win .v { color: var(--win); }
-.cal-day.loss { background: var(--loss-bg); border-color: rgba(255, 92, 122, 0.35); }
+.cal-day.loss { background: var(--loss-bg); border-color: rgba(255, 92, 122, 0.28); }
 .cal-day.loss .v { color: var(--loss); }
-.cal-day.today { outline: 2px solid var(--accent); outline-offset: 1px; }
+.cal-day.today { border-color: var(--accent); }
 .cal-legend { margin-top: 12px; color: var(--muted); font-size: 12px; display: flex; gap: 8px; align-items: center; }
 .lg { width: 12px; height: 12px; border-radius: 3px; display: inline-block; margin-left: 12px; }
 .lg.win { background: var(--win); } .lg.loss { background: var(--loss); } .lg.flat { background: var(--flat); margin-left: 0; }
