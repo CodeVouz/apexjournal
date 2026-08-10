@@ -197,6 +197,9 @@ const $ = (id) => document.getElementById(id);
 const fmt$ = (n, sign = false) =>
   (sign && n > 0 ? '+' : '') + (n < 0 ? '-$' : '$') + Math.abs(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const fmtDate = (sec) => new Date(sec * 1000).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+// local-timezone YYYY-MM-DD (MT5 deal times are epoch seconds; grouping must match the user's day)
+const dayKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const todayKey = () => dayKey(new Date());
 const fmtHold = (t) => {
   if (!t.open_time) return '—';
   const m = Math.round((t.close_time - t.open_time) / 60);
@@ -419,11 +422,12 @@ $('cal-next').addEventListener('click', () => { S.calOffset = Math.max(0, S.calO
 function renderCalendar() {
   const byDay = {};
   for (const d of S.equityCurve) byDay[d.day] = d;
-  const todayStr = new Date().toISOString().slice(0, 10);
-  const ref = new Date(todayStr + 'T00:00:00Z');
-  ref.setUTCMonth(ref.getUTCMonth() - S.calOffset);
-  const y = ref.getUTCFullYear(), m = ref.getUTCMonth();
-  $('cal-title').textContent = ref.toLocaleString(undefined, { month: 'long', year: 'numeric', timeZone: 'UTC' });
+  const todayStr = todayKey();
+  const ref = new Date();
+  ref.setDate(1);
+  ref.setMonth(ref.getMonth() - S.calOffset);
+  const y = ref.getFullYear(), m = ref.getMonth();
+  $('cal-title').textContent = ref.toLocaleString(undefined, { month: 'long', year: 'numeric' });
 
   const cal = $('calendar');
   cal.innerHTML = '';
@@ -432,20 +436,20 @@ function renderCalendar() {
     el.className = 'cal-head'; el.textContent = h;
     cal.appendChild(el);
   }
-  const first = new Date(Date.UTC(y, m, 1));
-  const lead = (first.getUTCDay() + 6) % 7;
-  const daysInMonth = new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
-  const prevMonthDays = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  const first = new Date(y, m, 1);
+  const lead = (first.getDay() + 6) % 7;
+  const daysInMonth = new Date(y, m + 1, 0).getDate();
+  const prevMonthDays = new Date(y, m, 0).getDate();
 
   const cells = [];
-  for (let i = lead; i > 0; i--) cells.push({ d: prevMonthDays - i + 1, other: true, date: new Date(Date.UTC(y, m - 1, prevMonthDays - i + 1)) });
-  for (let d = 1; d <= daysInMonth; d++) cells.push({ d, other: false, date: new Date(Date.UTC(y, m, d)) });
+  for (let i = lead; i > 0; i--) cells.push({ d: prevMonthDays - i + 1, other: true, date: new Date(y, m - 1, prevMonthDays - i + 1) });
+  for (let d = 1; d <= daysInMonth; d++) cells.push({ d, other: false, date: new Date(y, m, d) });
   const tail = (7 - (cells.length % 7)) % 7;
-  for (let d = 1; d <= tail; d++) cells.push({ d, other: true, date: new Date(Date.UTC(y, m + 1, d)) });
+  for (let d = 1; d <= tail; d++) cells.push({ d, other: true, date: new Date(y, m + 1, d) });
 
   let monthTotal = 0, monthTrades = 0;
   for (const c of cells) {
-    const key = c.date.toISOString().slice(0, 10);
+    const key = dayKey(c.date);
     const rec = byDay[key];
     const el = document.createElement('div');
     el.className = 'cal-day' + (c.other ? ' other' : '');
