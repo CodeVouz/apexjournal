@@ -1,0 +1,17 @@
+# ---- secrets & local data (NEVER commit) ----
+.env
+.env.*
+!.env.example
+mt5_creds.json
+journal.db
+journal.db-wal
+journal.db-shm
+*.db
+
+# ---- dependencies & system ----
+node_modules/
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+*.log

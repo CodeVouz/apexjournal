@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Apex Journal — Live MT5 Trading Journal</title>
+<link rel="stylesheet" href="styles.css" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+</head>
+<body>
+
+<canvas id="bg3d"></canvas>
+<div id="bg-vignette"></div>
+
+<!-- ============ LOGIN (MT5 style) ============ -->
+<div id="login-screen">
+  <div class="login-card glass">
+    <div class="login-logo">
+      <div class="logo-ring"></div>
+      <span>📈</span>
+    </div>
+    <h1>APEX JOURNAL</h1>
+    <p class="login-sub">Connect your MetaTrader 5 account</p>
+    <form id="login-form">
+      <label>Server</label>
+      <input id="lg-server" placeholder="Bybit-Live-7" autocomplete="off" />
+      <label>Login ID</label>
+      <input id="lg-id" placeholder="558577341" inputmode="numeric" autocomplete="off" />
+      <label>Password</label>
+      <input id="lg-pass" type="password" placeholder="••••••••" />
+      <div id="login-error"></div>
+      <button type="submit" id="login-btn"><span>Connect to MT5</span></button>
+    </form>
+    <p class="login-hint" id="bridge-hint">Checking server…</p>
+  </div>
+  <div class="login-foot">Real MT5 account · Real history · Live prices — cloud-connected, works even with MT5 closed</div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="app" class="hidden">
+  <header id="topbar" class="glass">
+    <div class="brand">📈 <b>APEX</b> JOURNAL</div>
+    <div class="acct-chip" id="acct-chip"></div>
+    <div class="top-stats">
+      <div class="stat"><span>Balance</span><b id="stat-balance">—</b></div>
+      <div class="stat"><span>Equity</span><b id="stat-equity">—</b></div>
+      <div class="stat"><span>Floating</span><b id="stat-unrealized">—</b></div>
+      <div class="stat"><span>Margin Level</span><b id="stat-margin">—</b></div>
+    </div>
+    <div class="top-actions">
+      <span id="live-dot" title="live"></span><span class="live-label">LIVE</span>
+      <button id="btn-settings" class="ghost">⚙ AI Key</button>
+      <button id="btn-logout" class="ghost">Logout</button>
+    </div>
+  </header>
+
+  <div id="ticker-tape"><div id="ticker-inner"></div></div>
+
+  <nav id="tabs">
+    <button class="tab active" data-tab="overview">Overview</button>
+    <button class="tab" data-tab="history">Trade History</button>
+    <button class="tab" data-tab="coach">AI Coach</button>
+  </nav>
+
+  <!-- OVERVIEW -->
+  <section id="tab-overview" class="tabpane active">
+    <div class="grid">
+      <div class="card glass span2">
+        <h2>Cumulative PnL <span class="badge" id="curve-range">180 days</span></h2>
+        <div class="chart-wrap"><canvas id="equity-chart"></canvas></div>
+      </div>
+      <div class="card glass">
+        <h2>Open Positions <span class="badge" id="open-count">0</span></h2>
+        <div class="table-wrap">
+          <table id="open-table">
+            <thead><tr><th>Symbol</th><th>Side</th><th>Vol</th><th>Open</th><th>Price</th><th>SL</th><th>TP</th><th>Profit</th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <div class="empty" id="open-empty">No open positions</div>
+        </div>
+      </div>
+      <div class="card glass">
+        <h2>Market Watch <span class="badge" id="mw-count">0</span></h2>
+        <input id="mw-search" class="mw-search" placeholder="Search symbols… (e.g. XAU, BTC)" />
+        <div class="table-wrap mw-wrap">
+          <table id="market-table"><thead><tr><th>Symbol</th><th>Bid</th><th>Ask</th><th>Spread</th></tr></thead><tbody></tbody></table>
+        </div>
+      </div>
+      <div class="card glass span2">
+        <h2>Daily PnL Calendar</h2>
+        <div id="calendar-nav">
+          <button id="cal-prev" class="ghost">‹</button>
+          <b id="cal-title"></b>
+          <button id="cal-next" class="ghost">›</button>
+        </div>
+        <div id="calendar"></div>
+        <div class="cal-legend"><span class="lg loss"></span> Loss <span class="lg flat"></span> Flat <span class="lg win"></span> Profit</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HISTORY -->
+  <section id="tab-history" class="tabpane">
+    <div class="card glass">
+      <h2>Trade History <span class="badge" id="hist-count">0</span></h2>
+      <div id="hist-filters">
+        <input id="hist-search" placeholder="Filter by symbol…" />
+        <select id="hist-side"><option value="">All sides</option><option value="buy">Buy</option><option value="sell">Sell</option></select>
+        <select id="hist-result"><option value="">All results</option><option value="win">Wins</option><option value="loss">Losses</option></select>
+        <select id="hist-days">
+          <option value="30">Last 30 days</option>
+          <option value="90">Last 90 days</option>
+          <option value="180">Last 180 days</option>
+          <option value="365" selected>Last year</option>
+        </select>
+      </div>
+      <div id="hist-summary"></div>
+      <div class="table-wrap tall">
+        <table id="history-table">
+          <thead><tr>
+            <th data-k="ticket">Ticket</th><th data-k="close_time">Close Time</th><th data-k="symbol">Symbol</th>
+            <th data-k="side">Side</th><th data-k="lots">Vol</th><th data-k="open_price">Open</th>
+            <th data-k="close_price">Close</th><th data-k="hold">Hold</th><th data-k="pnl">PnL</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- AI COACH -->
+  <section id="tab-coach" class="tabpane">
+    <div class="card glass">
+      <h2>🤖 AI Trading Coach</h2>
+      <p class="muted" id="coach-status">Analyzes your real MT5 journal: mistakes, risk habits, weak symbols, and an action plan.</p>
+      <div class="coach-row">
+        <input id="coach-prompt" placeholder="Optional question, e.g. “why do I keep losing on gold?”" />
+        <button id="coach-run">Analyze my trading</button>
+      </div>
+      <div id="coach-out" class="coach-out"><i>Press “Analyze my trading” to get a review of your journal.</i></div>
+    </div>
+  </section>
+
+  <!-- SETTINGS MODAL -->
+  <div id="settings-modal" class="modal hidden">
+    <div class="modal-card glass">
+      <h2>AI Provider Settings</h2>
+      <p class="muted">Any OpenAI-compatible API works (Cosmos Hub, OpenAI, OpenRouter, DeepSeek…). Defaults are Cosmos Hub. Stored only in the local journal database on this machine.</p>
+      <label class="fld">Base URL</label>
+      <input id="ai-base-url" placeholder="https://api.cosmoshub.tech" autocomplete="off" />
+      <label class="fld">Model</label>
+      <input id="ai-model" placeholder="qwen-3.7-max" autocomplete="off" />
+      <label class="fld">API Key</label>
+      <input id="ai-key-input" placeholder="sk-cos-…" autocomplete="off" />
+      <div class="modal-actions">
+        <button id="ai-key-save">Save</button>
+        <button id="ai-key-close" class="ghost">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

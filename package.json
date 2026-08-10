@@ -1,0 +1,14 @@
+{
+  "name": "trading-journal",
+  "version": "1.0.0",
+  "description": "Live trading journal - PnL calendar, cumulative equity, trade history, active positions, AI coach",
+  "main": "server/index.js",
+  "scripts": {
+    "dev": "node server/index.js",
+    "start": "node server/index.js"
+  },
+  "dependencies": {
+    "metaapi.cloud-sdk": "^29.3.3",
+    "ws": "^8.18.0"
+  }
+}
